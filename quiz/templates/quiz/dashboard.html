@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>לוח בקרה</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            direction: rtl;
+        }
+        
+        .dashboard-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .no-quizzes {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 1.2em;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .quiz-list {
+            margin-top: 20px;
+        }
+        
+        .quiz-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .quiz-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quiz-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .status-complete {
+            background-color: #e8f5e9;
+            color: #28a745;
+        }
+        
+        .status-incomplete {
+            background-color: #fff3e0;
+            color: #ff9800;
+        }
+        
+        .quiz-action {
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        .start-quiz {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .start-quiz:hover {
+            background-color: #0056b3;
+        }
+        
+        .completed-text {
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>שלום {{ request.user.username }}</h1>
+        
+        <div class="quiz-list">
+            {% if quiz_status %}
+                {% if has_incomplete_quizzes %}
+                    {% for status in quiz_status %}
+                        <div class="quiz-item">
+                            <div class="quiz-status">
+                                <strong>{{ status.quiz.title }}</strong>
+                                {% if status.completed %}
+                                    <span class="status-badge status-complete">✓ הושלם</span>
+                                {% else %}
+                                    <span class="status-badge status-incomplete">ממתין למענה</span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if not status.completed %}
+                                <a href="{% url 'take_quiz' status.quiz.id %}" class="quiz-action start-quiz">
+                                    התחל שאלון
+                                </a>
+                            {% else %}
+                                <span class="completed-text">✓ סיימת את השאלון</span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-quizzes">
+                        <h2>אין לך יותר שאלונים למלא</h2>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="no-quizzes">
+                    <h2>אין שאלונים זמינים כרגע</h2>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

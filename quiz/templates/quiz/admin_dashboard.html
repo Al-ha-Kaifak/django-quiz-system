@@ -1,0 +1,135 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ניהול משתמשים</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            direction: rtl;
+        }
+        
+        .dashboard-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #444;
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .user-list {
+            margin-top: 20px;
+        }
+        
+        .user-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .user-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quiz-status {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .status-complete {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .status-incomplete {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        a {
+            text-decoration: none;
+            color: #007bff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        a:hover {
+            background-color: #f0f0f0;
+            color: #0056b3;
+        }
+        
+        .view-answers {
+            background-color: #007bff;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        .view-answers:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>ניהול משתמשים</h1>
+        <div class="user-list">
+            {% for data in user_data %}
+                <div class="user-item">
+                    <h2>👤 {{ data.user.username }}</h2>
+                    {% for quiz_data in data.quizzes %}
+                        <div class="quiz-status">
+                            <div>
+                                <strong>{{ quiz_data.quiz.title }}</strong>
+                                {% if quiz_data.completed %}
+                                    <span class="status-complete">✓ הושלם</span>
+                                {% else %}
+                                    <span class="status-incomplete">⨯ טרם הושלם</span>
+                                {% endif %}
+                            </div>
+                            {% if quiz_data.completed %}
+                                <a href="{% url 'user_answers' data.user.id quiz_data.quiz.id %}" class="view-answers">
+                                    צפה בתשובות
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
