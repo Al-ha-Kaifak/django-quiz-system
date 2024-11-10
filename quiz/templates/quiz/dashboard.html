@@ -31,16 +31,6 @@
             margin-bottom: 30px;
         }
 
-        .no-quizzes {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 1.2em;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
         .quiz-list {
             margin-top: 20px;
         }
@@ -83,6 +73,12 @@
             background-color: #fff3e0;
             color: #ff9800;
         }
+
+        .status-update {
+            background-color: #fff3cd;
+            color: #856404;
+            font-weight: bold;
+        }
         
         .quiz-action {
             text-decoration: none;
@@ -109,6 +105,10 @@
 <body>
     <div class="dashboard-container">
         <h1>שלום {{ request.user.username }}</h1>
+
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+            <a href="{% url 'logout' %}" class="logout-button">התנתק</a>
+        </div>
         
         <div class="quiz-list">
             {% if quiz_status %}
@@ -117,14 +117,18 @@
                         <div class="quiz-item">
                             <div class="quiz-status">
                                 <strong>{{ status.quiz.title }}</strong>
-                                {% if status.completed %}
-                                    <span class="status-badge status-complete">✓ הושלם</span>
+                                {% if status.needs_update %}
+                                    <span class="status-badge status-update">שאלון זה עודכן - נדרש למלא מחדש</span>
                                 {% else %}
-                                    <span class="status-badge status-incomplete">ממתין למענה</span>
+                                    {% if status.completed %}
+                                        <span class="status-badge status-complete">✓ הושלם</span>
+                                    {% else %}
+                                        <span class="status-badge status-incomplete">ממתין למענה</span>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                             
-                            {% if not status.completed %}
+                            {% if not status.completed or status.needs_update %}
                                 <a href="{% url 'take_quiz' status.quiz.id %}" class="quiz-action start-quiz">
                                     התחל שאלון
                                 </a>
@@ -144,6 +148,13 @@
                 </div>
             {% endif %}
         </div>
+
+        {% if request.user.is_staff %}
+            <a href="{% url 'manager_dashboard' %}" class="quiz-action start-quiz" 
+               style="display: block; width: 200px; margin: 20px auto; text-align: center;">
+                ממשק ניהול
+            </a>
+        {% endif %}
     </div>
 </body>
 </html>

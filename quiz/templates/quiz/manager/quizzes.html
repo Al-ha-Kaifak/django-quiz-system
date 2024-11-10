@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ניהול שאלונים</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            direction: rtl;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 30px;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin: 0;
+        }
+        
+        .quiz-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .quiz-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .quiz-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+        
+        .quiz-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .create-button {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .edit-button {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .back-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .expand-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .quiz-stats {
+            color: #666;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+
+        .quiz-details {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        .quiz-details.active {
+            display: block;
+        }
+
+        .user-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .user-status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+
+        .status-icon.completed {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-icon.pending {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .completed-link {
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .completed-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: #f0f0f0;
+        }
+
+        .user-name {
+            font-size: 14px;
+        }
+
+        h4 {
+            color: #333;
+            margin: 0 0 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navigation">
+            <a href="{% url 'manager_dashboard' %}" class="button back-button">← חזרה ללוח הבקרה</a>
+        </div>
+
+        <div class="header-actions">
+            <h1>ניהול שאלונים</h1>
+            <a href="{% url 'create_quiz' %}" class="button create-button">צור שאלון חדש</a>
+        </div>
+        
+        <div class="quiz-list">
+            {% for quiz in quizzes %}
+                <div class="quiz-item">
+                    <div class="quiz-header">
+                        <h3 class="quiz-title">{{ quiz.title }}</h3>
+                        <div class="quiz-actions">
+                            <button class="button expand-button" onclick="toggleDetails('quiz-{{ quiz.id }}')">
+                                הרחב ⯆
+                            </button>
+                            <a href="{% url 'edit_quiz' quiz.id %}" class="button edit-button">ערוך</a>
+                            <form method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" name="delete_quiz" value="{{ quiz.id }}" 
+                                        class="button delete-button"
+                                        onclick="return confirm('האם אתה בטוח שברצונך למחוק שאלון זה?')">
+                                    מחק
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="quiz-stats">
+                        <span>מספר שאלות: {{ quiz.questions.count }}</span>
+                        <span style="margin-right: 20px;">משתמשים שענו: {{ quiz.completed_count }}</span>
+                    </div>
+
+                    <div id="quiz-{{ quiz.id }}" class="quiz-details">
+                        <div class="user-completion-status">
+                            <h4>סטטוס השלמת השאלון:</h4>
+                            <div class="user-status-grid">
+                                {% for status in quiz.user_statuses %}
+                                    {% if status.completed %}
+                                        <a href="{% url 'view_quiz_answers' status.user.id quiz.id %}" 
+                                           class="user-status-item completed-link">
+                                            <span class="status-icon completed">✓</span>
+                                            <span class="user-name">{{ status.user.username }}</span>
+                                        </a>
+                                    {% else %}
+                                        <div class="user-status-item">
+                                            <span class="status-icon pending">✗</span>
+                                            <span class="user-name">{{ status.user.username }}</span>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function toggleDetails(id) {
+            const details = document.getElementById(id);
+            const button = event.target;
+            const isActive = details.classList.contains('active');
+            
+            details.classList.toggle('active');
+            button.textContent = isActive ? 'הרחב ⯆' : 'סגור ⯅';
+        }
+    </script>
+</body>
+</html>

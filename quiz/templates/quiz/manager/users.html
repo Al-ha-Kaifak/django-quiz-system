@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ניהול משתמשים</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            direction: rtl;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin: 0;
+        }
+        
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .user-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .user-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-info {
+            flex-grow: 1;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin: 0 0 5px 0;
+        }
+
+        .user-email {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .create-button {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .view-button {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .edit-button {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .back-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .notes-preview {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navigation">
+            <a href="{% url 'manager_dashboard' %}" class="button back-button">← חזרה ללוח הבקרה</a>
+        </div>
+    
+        <div class="header-actions">
+            <h1>ניהול משתמשים</h1>
+            <a href="{% url 'create_user' %}" class="button create-button">צור משתמש חדש</a>
+        </div>
+        
+        <div class="user-list">
+            {% for user in users %}
+                <div class="user-item">
+                    <div class="user-info">
+                        <div class="user-name">{{ user.username }}</div>
+                        {% if user.email %}
+                            <div class="user-email">{{ user.email }}</div>
+                        {% endif %}
+                        {% if user.notes.notes %}
+                            <div class="notes-preview">
+                                פתקים: {{ user.notes.notes|truncatechars:50 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="user-actions">
+                        <a href="{% url 'view_user_quizzes' user.id %}" class="button view-button">צפה בשאלונים</a>
+                        <a href="{% url 'edit_user' user.id %}" class="button edit-button">ערוך משתמש</a>
+                        <form method="post" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" name="delete_user" value="{{ user.id }}" 
+                                    class="button delete-button"
+                                    onclick="return confirm('האם אתה בטוח שברצונך למחוק משתמש זה?')">
+                                מחק
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

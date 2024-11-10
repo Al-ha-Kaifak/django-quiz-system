@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>יצירת שאלון חדש</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            direction: rtl;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .questions-container {
+            margin-top: 20px;
+        }
+        
+        .question {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            position: relative;
+        }
+        
+        .remove-question {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #dc3545;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .button {
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .add-question {
+            background-color: #28a745;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .submit-quiz {
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            width: 200px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .back-button {
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .visibility-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .visibility-options label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+
+        .user-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .user-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'manage_quizzes' %}" class="button back-button">חזרה לרשימת השאלונים</a>
+        
+        <h1>יצירת שאלון חדש</h1>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>כותרת השאלון:</label>
+                <input type="text" name="title" required>
+            </div>
+            
+            <div class="questions-container">
+                <div class="question">
+                    <span class="remove-question" onclick="this.parentElement.remove()">×</span>
+                    <div class="form-group">
+                        <label>שאלה:</label>
+                        <textarea name="questions[]" rows="3" required></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="button" class="button add-question" onclick="addQuestion()">הוסף שאלה</button>
+
+            <!-- הוספת אזור הרשאות -->
+            <div class="visibility-section">
+                <h3>הגדרות הרשאה:</h3>
+                <div class="visibility-options">
+                    <label>
+                        <input type="radio" name="visibility" value="public" checked 
+                               onchange="toggleUserList()">
+                        הצג שאלון לכל המשתמשים
+                    </label>
+                    <label>
+                        <input type="radio" name="visibility" value="specific" 
+                               onchange="toggleUserList()">
+                        בחר משתמשים ספציפיים
+                    </label>
+                </div>
+
+                <div id="userList" class="user-list">
+                    {% for user in all_users %}
+                        <label class="user-checkbox">
+                            <input type="checkbox" name="users" value="{{ user.id }}">
+                            {{ user.username }}
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <button type="submit" class="button submit-quiz">צור שאלון</button>
+        </form>
+    </div>
+    
+    <script>
+        function addQuestion() {
+            const container = document.querySelector('.questions-container');
+            const newQuestion = document.createElement('div');
+            newQuestion.className = 'question';
+            newQuestion.innerHTML = `
+                <span class="remove-question" onclick="this.parentElement.remove()">×</span>
+                <div class="form-group">
+                    <label>שאלה:</label>
+                    <textarea name="questions[]" rows="3" required></textarea>
+                </div>
+            `;
+            container.appendChild(newQuestion);
+        }
+
+        function toggleUserList() {
+            const userList = document.getElementById('userList');
+            const isSpecific = document.querySelector('input[name="visibility"][value="specific"]').checked;
+            userList.style.display = isSpecific ? 'grid' : 'none';
+        }
+    </script>
+</body>
+</html>

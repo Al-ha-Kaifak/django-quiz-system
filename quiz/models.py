@@ -7,6 +7,10 @@ from django.contrib.auth.models import User
 class Quiz(models.Model):
     title = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
+    assigned_users = models.ManyToManyField(User, blank=True, related_name='assigned_quizzes')
+    is_public = models.BooleanField(default=True)
+    assigned_users = models.ManyToManyField(User, blank=True, related_name='assigned_quizzes')
     
     def __str__(self):
         return self.title
@@ -35,10 +39,15 @@ class UserQuizStatus(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         unique_together = ['user', 'quiz']
         
     def __str__(self):
         return f"{self.user.username} - {self.quiz.title} - {'Completed' if self.completed else 'Pending'}"
+    
+class UserNotes(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='notes')
+    notes = models.TextField(blank=True)
+    

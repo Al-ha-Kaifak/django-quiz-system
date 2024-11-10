@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>שאלונים של {{ viewed_user.username }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            direction: rtl;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .quiz-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .quiz-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .section-title {
+            color: #333;
+            margin: 0 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title .icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+
+        .completed-icon {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .pending-icon {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .unavailable-icon {
+            background-color: #6c757d;
+            color: white;
+            border: 2px solid #6c757d;
+        }
+
+        .quiz-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: white;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .quiz-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .quiz-title {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .view-answers {
+            background-color: #17a2b8;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .view-answers:hover {
+            background-color: #138496;
+        }
+
+        .empty-section {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .back-button {
+            background-color: #6c757d;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .remove-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            font-size: 14px;
+        }
+        
+        .remove-button:hover {
+            background-color: #c82333;
+        }
+        
+        .add-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            font-size: 14px;
+        }
+        
+        .add-button:hover {
+            background-color: #218838;
+        }
+
+        .public-badge {
+            font-size: 12px;
+            padding: 2px 6px;
+            background-color: #17a2b8;
+            color: white;
+            border-radius: 4px;
+            margin-right: 8px;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'manage_users' %}" class="button back-button">← חזרה לרשימת המשתמשים</a>
+        
+        <h1>שאלונים של {{ viewed_user.username }}</h1>
+
+        <div class="quiz-sections">
+            <!-- שאלונים שהושלמו -->
+            <div class="quiz-section">
+                <h2 class="section-title">
+                    <span class="icon completed-icon">✓</span>
+                    שאלונים שהושלמו
+                </h2>
+                {% if completed_quizzes %}
+                    {% for item in completed_quizzes %}
+                        <div class="quiz-item">
+                            <div class="quiz-info">
+                                <h3 class="quiz-title">
+                                    {{ item.quiz.title }}
+                                    {% if item.is_public %}
+                                        <span class="public-badge">ציבורי</span>
+                                    {% endif %}
+                                </h3>
+                            </div>
+                            <a href="{% url 'view_quiz_answers' viewed_user.id item.quiz.id %}" 
+                               class="view-answers">
+                                צפה בתשובות
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-section">
+                        אין שאלונים שהושלמו
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- שאלונים בהמתנה -->
+            <div class="quiz-section">
+                <h2 class="section-title">
+                    <span class="icon pending-icon">✗</span>
+                    שאלונים שטרם הושלמו
+                </h2>
+                {% if pending_quizzes %}
+                    {% for item in pending_quizzes %}
+                        <div class="quiz-item">
+                            <div class="quiz-info">
+                                <h3 class="quiz-title">
+                                    {{ item.quiz.title }}
+                                    {% if item.is_public %}
+                                        <span class="public-badge">ציבורי</span>
+                                    {% endif %}
+                                </h3>
+                            </div>
+                            <form method="post" action="{% url 'update_user_quizzes' viewed_user.id %}" style="margin: 0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="remove">
+                                <input type="hidden" name="quiz_id" value="{{ item.quiz.id }}">
+                                <button type="submit" class="button remove-button" 
+                                        onclick="return confirm('האם אתה בטוח שברצונך להסיר שאלון זה מהמשתמש?')">
+                                    הסר גישה
+                                </button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-section">
+                        אין שאלונים בהמתנה
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- שאלונים לא נגישים -->
+            <div class="quiz-section">
+                <h2 class="section-title">
+                    <span class="icon unavailable-icon">○</span>
+                    שאלונים לא נגישים
+                </h2>
+                {% if unavailable_quizzes %}
+                    {% for item in unavailable_quizzes %}
+                        <div class="quiz-item">
+                            <div class="quiz-info">
+                                <h3 class="quiz-title">
+                                    {{ item.quiz.title }}
+                                    {% if item.is_public %}
+                                        <span class="public-badge">ציבורי</span>
+                                    {% endif %}
+                                </h3>
+                            </div>
+                            <form method="post" action="{% url 'update_user_quizzes' viewed_user.id %}" style="margin: 0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="add">
+                                <input type="hidden" name="quiz_id" value="{{ item.quiz.id }}">
+                                <button type="submit" class="button add-button">
+                                    הוסף גישה
+                                </button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-section">
+                        אין שאלונים נוספים במערכת
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
